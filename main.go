@@ -3,18 +3,28 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
 
-func main() {
-	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Fprintln(writer, "Hello world")
-	})
+type User struct {
+	FirstName string
+	LastName  string
+	Email     string
+	CreatedAt time.Time
+}
+type HomePageHandler struct {
+}
 
-	barHandler := func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Fprintln(writer,"Hello Bar")
+func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		name = "World"
 	}
+	fmt.Fprintf(w, "Hello %s!", name)
+}
 
-	http.HandleFunc("/bar", barHandler)
+func main() {
+	http.Handle("/", &HomePageHandler{})
 
 	http.ListenAndServe(":3000", nil)
 }
